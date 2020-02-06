@@ -1,0 +1,10 @@
+<% if !@titles.nil? %>
+<div class="list is-hoverable">
+  <% @titles.each_with_index do |title, i|%>
+  <a href=<%= i %> class="list-item"><%= title %></a>
+  <% end %>
+  <% end %>
+</div>
+<div class="container">
+  <a href="new" class="button is-primary">Create</a>
+</div>
