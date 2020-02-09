@@ -5,24 +5,20 @@ require "sinatra/base"
 require "sinatra/reloader"
 
 class MemoApp < Sinatra::Base
-  configure :development do # なにこれ？
+  configure do
     register Sinatra::Reloader
     enable :method_override
   end
 
   helpers do
     def get_memo_titles
-      titles = []
-      Dir.glob("texts/*").sort.each do |path|
-        File.open("#{path}", "r") { |f| titles << f.gets }
+      Dir.glob("texts/*").sort.map do |path|
+        File.open("#{path}", "r") { |f| f.gets }
       end
-      titles
     end
 
     def get_memo_paths
-      paths = []
-      Dir.glob("texts/*").sort.each { |path| paths << path }
-      paths
+      Dir.glob("texts/*").sort
     end
 
     def create_memo
