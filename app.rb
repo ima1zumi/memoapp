@@ -10,47 +10,45 @@ class MemoApp < Sinatra::Base
     enable :method_override
   end
 
-  helpers do
-    def get_memo_titles
-      Dir.glob("texts/*").sort.map do |path|
-        File.open("#{path}", "r") { |f| f.gets }
-      end
+  def get_memo_titles
+    Dir.glob("texts/*").sort.map do |path|
+      File.open("#{path}", "r") { |f| f.gets }
     end
+  end
 
-    def get_memo_paths
-      Dir.glob("texts/*").sort
-    end
+  def get_memo_paths
+    Dir.glob("texts/*").sort
+  end
 
-    def create_memo
-      File.open("texts/#{Time.now.to_i}.txt", "w") do |f|
-        f.write(h(params[:message]))
-      end
+  def create_memo
+    File.open("texts/#{Time.now.to_i}.txt", "w") do |f|
+      f.write(h(params[:message]))
     end
+  end
 
-    def write_memo(path)
-      File.open("#{path}", "w") do |f|
-        f.write(h(params[:message]))
-      end
+  def write_memo(path)
+    File.open("#{path}", "w") do |f|
+      f.write(h(params[:message]))
     end
+  end
 
-    def delete_memo(path)
-      File.delete("#{path}")
-    end
+  def delete_memo(path)
+    File.delete("#{path}")
+  end
 
-    def valid_memo_check(memo)
-      if memo.nil?
-        halt 404, "404 - そのメモはありません"
-      end
+  def valid_memo_check(memo)
+    if memo.nil?
+      halt 404, "404 - そのメモはありません"
     end
+  end
 
-    def set_path
-      paths = get_memo_paths
-      paths[params[:num].to_i]
-    end
+  def set_path
+    paths = get_memo_paths
+    paths[params[:num].to_i]
+  end
 
-    def h(text)
-      Rack::Utils.escape_html(text)
-    end
+  def h(text)
+    Rack::Utils.escape_html(text)
   end
 
   get "/" do
