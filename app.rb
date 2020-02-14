@@ -3,6 +3,7 @@
 require "sinatra"
 require "sinatra/base"
 require "sinatra/reloader"
+require "securerandom"
 
 class MemoApp < Sinatra::Base
   configure do
@@ -11,17 +12,18 @@ class MemoApp < Sinatra::Base
   end
 
   def get_memo_titles
-    Dir.glob("texts/*").sort.map do |path|
+    get_memo_paths.map do |path|
       File.open("#{path}", "r") { |f| f.gets }
     end
   end
 
   def get_memo_paths
-    Dir.glob("texts/*").sort
+    Dir.glob("texts/*").sort_by { |f| File.mtime(f) }.reverse
   end
 
   def create_memo
-    File.open("texts/#{Time.now.to_i}.txt", "w") do |f|
+    filename = create_filename
+    File.open("texts/#{filename}.txt", "w") do |f|
       f.write(h(params[:message]))
     end
   end
@@ -36,15 +38,26 @@ class MemoApp < Sinatra::Base
     File.delete("#{path}")
   end
 
-  def valid_memo_check(memo)
-    if memo.nil?
+  def valid_memo_check(path)
+    if valid_filename_check(path)
       halt 404, "404 - そのメモはありません"
     end
   end
 
+  def create_filename
+    filename = SecureRandom.urlsafe_base64
+    while valid_filename_check(filename)
+      filename = SecureRandom.urlsafe_base64
+    end
+    filename
+  end
+
+  def valid_filename_check(path)
+    FileTest.exist?("texts/#{path}.txt")
+  end
+
   def set_path
-    paths = get_memo_paths
-    paths[params[:num].to_i]
+    "texts/" + params[:filename] + ".txt"
   end
 
   def h(text)
@@ -53,6 +66,7 @@ class MemoApp < Sinatra::Base
 
   get "/" do
     @titles = get_memo_titles
+    @paths = get_memo_paths
     erb :index
   end
 
@@ -65,26 +79,26 @@ class MemoApp < Sinatra::Base
     erb :new
   end
 
-  get "/:num" do
+  get "/:filename" do
     @path = set_path
     valid_memo_check(@path)
     erb :show
   end
 
-  get "/:num/edit" do
+  get "/:filename/edit" do
     @path = set_path
     valid_memo_check(@path)
     erb :edit
   end
 
-  patch "/:num" do
+  patch "/:filename" do
     @path = set_path
     valid_memo_check(@path)
     write_memo(@path)
     redirect "/"
   end
 
-  delete "/:num" do
+  delete "/:filename" do
     @path = set_path
     valid_memo_check(@path)
     delete_memo(@path)

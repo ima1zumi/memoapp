@@ -9,10 +9,10 @@
 </div>
 <div class="field is-grouped">
   <div class="control">
-    <a href="<%= params[:num] %>/edit" class="button is-primary">Edit</a>
+    <a href="<%= params[:filename] %>/edit" class="button is-primary">Edit</a>
   </div>
   <div class="control">
-    <form action="../<%= params[:num] %>" method="post">
+    <form action="../<%= params[:filename] %>" method="post">
       <input type="hidden" name="_method" value="delete">
       <input type="submit" value="Delete" class="button is-danger">
     </form>

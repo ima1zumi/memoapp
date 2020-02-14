@@ -1,5 +1,5 @@
 <div class="content">
-  <form action="../<%= params[:num] %>" method="post">
+  <form action="../<%= params[:filename] %>" method="post">
     <% File.open("#{@path}", "r") do |f| %>
     <label class="label">Edit Memo</label>
     <%# textarea内改行抑止のため1行で書いた %>
