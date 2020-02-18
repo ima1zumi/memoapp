@@ -4,6 +4,7 @@ require "sinatra"
 require "sinatra/base"
 require "sinatra/reloader"
 require "securerandom"
+require_relative "lib/memo.rb"
 
 class MemoApp < Sinatra::Base
   configure do
@@ -11,53 +12,10 @@ class MemoApp < Sinatra::Base
     enable :method_override
   end
 
-  def get_memo_titles
-    get_memo_paths.map do |path|
-      File.open("#{path}", "r") { |f| f.gets }
-    end
-  end
-
-  def get_memo_paths
-    Dir.glob("texts/*").sort_by { |f| File.mtime(f) }.reverse
-  end
-
-  def create_memo
-    filename = create_filename
-    File.open("texts/#{filename}.txt", "w") do |f|
-      f.write(h(params[:message]))
-    end
-  end
-
-  def write_memo(path)
-    File.open("#{path}", "w") do |f|
-      f.write(h(params[:message]))
-    end
-  end
-
-  def delete_memo(path)
-    File.delete("#{path}")
-  end
-
-  def valid_memo_check(path)
-    if valid_filename_check(path)
+  def check_id(id)
+    if 0 == Memo.new.count_id(id)
       halt 404, "404 - そのメモはありません"
     end
-  end
-
-  def create_filename
-    filename = SecureRandom.urlsafe_base64
-    while valid_filename_check(filename)
-      filename = SecureRandom.urlsafe_base64
-    end
-    filename
-  end
-
-  def valid_filename_check(path)
-    FileTest.exist?("texts/#{path}.txt")
-  end
-
-  def set_path
-    "texts/" + params[:filename] + ".txt"
   end
 
   def h(text)
@@ -65,13 +23,12 @@ class MemoApp < Sinatra::Base
   end
 
   get "/" do
-    @titles = get_memo_titles
-    @paths = get_memo_paths
+    @ids = Memo.new.ids
     erb :index
   end
 
   post "/" do
-    create_memo
+    Memo.new.insert(h(params[:message]))
     redirect "/"
   end
 
@@ -79,29 +36,27 @@ class MemoApp < Sinatra::Base
     erb :new
   end
 
-  get "/:filename" do
-    @path = set_path
-    valid_memo_check(@path)
+  get "/:id" do
+    check_id(params[:id])
+    @texts = Memo.new.texts(params[:id]).gsub(/\R/, "<br>")
     erb :show
   end
 
-  get "/:filename/edit" do
-    @path = set_path
-    valid_memo_check(@path)
+  get "/:id/edit" do
+    check_id(params[:id])
+    @texts = Memo.new.texts(params[:id])
     erb :edit
   end
 
-  patch "/:filename" do
-    @path = set_path
-    valid_memo_check(@path)
-    write_memo(@path)
+  patch "/:id" do
+    check_id(params[:id])
+    Memo.new.update(params[:id], h(params[:message]))
     redirect "/"
   end
 
-  delete "/:filename" do
-    @path = set_path
-    valid_memo_check(@path)
-    delete_memo(@path)
+  delete "/:id" do
+    check_id(params[:id])
+    Memo.new.delete(params[:id])
     redirect "/"
   end
 end

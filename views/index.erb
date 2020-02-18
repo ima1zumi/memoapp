@@ -1,7 +1,7 @@
-<% if !@paths.nil? %>
+<% if !@ids.nil? %>
 <div class="list is-hoverable">
-  <% @paths.each do |path|%>
-  <a href=<%= path.gsub(/texts|.txt/,"") %> class="list-item"><%= File.open("#{path}", "r") { |f| f.gets } %></a>
+  <% @ids.each do |id|%>
+  <a href=<%= id %> class="list-item"><%= Memo.new.title(id) %></a>
   <% end %>
   <% end %>
 </div>
