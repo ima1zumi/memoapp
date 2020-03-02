@@ -1,8 +1,7 @@
 <div class="content">
   <form action="../<%= params[:id] %>" method="post">
     <label class="label">Edit Memo</label>
-    <%# textarea内改行抑止のため1行で書いた %>
-    <textarea name="message" rows="10" cols="50" class="textarea"><%= @texts.gsub(/\R/, "&#13;") %></textarea>
+    <textarea name="message" rows="10" cols="50" class="textarea"><%= h(@message) %></textarea>
 </div>
 <div class="field is-grouped">
   <div class="control">

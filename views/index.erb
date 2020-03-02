@@ -1,7 +1,7 @@
-<% if !@ids.nil? %>
+<% if @memos.ntuples > 0 %>
 <div class="list is-hoverable">
-  <% @ids.each do |id|%>
-  <a href=<%= id %> class="list-item"><%= Memo.new.title(id) %></a>
+  <% @memos.each do |memo| %>
+  <a href="<%= memo["id"] %>" class="list-item"><%= title(h(memo["message"])) %></a>
   <% end %>
   <% end %>
 </div>

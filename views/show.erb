@@ -1,6 +1,6 @@
 <div class="box">
   <p>
-    <%= @texts %>
+    <%= replace_newline_with_br(h(@message)) %>
   </p>
 </div>
 <div class="field is-grouped">
@@ -8,7 +8,7 @@
     <a href="<%= params[:id] %>/edit" class="button is-primary">Edit</a>
   </div>
   <div class="control">
-    <form action="../<%= params[:id] %>" method="post">
+    <form action="<%= params[:id] %>" method="post">
       <input type="hidden" name="_method" value="delete">
       <input type="submit" value="Delete" class="button is-danger">
     </form>

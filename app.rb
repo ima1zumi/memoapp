@@ -3,7 +3,6 @@
 require "sinatra"
 require "sinatra/base"
 require "sinatra/reloader"
-require "securerandom"
 require_relative "lib/memo.rb"
 
 class MemoApp < Sinatra::Base
@@ -12,23 +11,33 @@ class MemoApp < Sinatra::Base
     enable :method_override
   end
 
-  def check_id(id)
-    if 0 == Memo.new.count_id(id)
+  helpers do
+    def h(message)
+      Rack::Utils.escape_html(message)
+    end
+
+    def replace_newline_with_br(message)
+      message.gsub(/\R/, "<br>")
+    end
+
+    def title(message)
+      message.chomp.split("\n")&.first || "タイトルなし"
+    end
+  end
+
+  def halt_404_when_doesnt_exist_id(id)
+    unless Memo.has_id?(id)
       halt 404, "404 - そのメモはありません"
     end
   end
 
-  def h(text)
-    Rack::Utils.escape_html(text)
-  end
-
   get "/" do
-    @ids = Memo.new.ids
+    @memos = Memo.memos
     erb :index
   end
 
   post "/" do
-    Memo.new.insert(h(params[:message]))
+    Memo.insert(params[:message])
     redirect "/"
   end
 
@@ -37,26 +46,26 @@ class MemoApp < Sinatra::Base
   end
 
   get "/:id" do
-    check_id(params[:id])
-    @texts = Memo.new.texts(params[:id]).gsub(/\R/, "<br>")
+    halt_404_when_doesnt_exist_id(params[:id])
+    @message = Memo.message(params[:id])
     erb :show
   end
 
   get "/:id/edit" do
-    check_id(params[:id])
-    @texts = Memo.new.texts(params[:id])
+    halt_404_when_doesnt_exist_id(params[:id])
+    @message = Memo.message(params[:id])
     erb :edit
   end
 
   patch "/:id" do
-    check_id(params[:id])
-    Memo.new.update(params[:id], h(params[:message]))
+    halt_404_when_doesnt_exist_id(params[:id])
+    Memo.update(params[:id], params[:message])
     redirect "/"
   end
 
   delete "/:id" do
-    check_id(params[:id])
-    Memo.new.delete(params[:id])
+    halt_404_when_doesnt_exist_id(params[:id])
+    Memo.delete(params[:id])
     redirect "/"
   end
 end
