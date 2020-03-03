@@ -25,14 +25,14 @@ class MemoApp < Sinatra::Base
     end
   end
 
-  def halt_404_when_doesnt_exist_id(id)
+  def halt_404_when_id_is_missing(id)
     unless Memo.has_id?(id)
       halt 404, "404 - そのメモはありません"
     end
   end
 
   get "/" do
-    @memos = Memo.memos
+    @memos = Memo.all
     erb :index
   end
 
@@ -46,25 +46,25 @@ class MemoApp < Sinatra::Base
   end
 
   get "/:id" do
-    halt_404_when_doesnt_exist_id(params[:id])
+    halt_404_when_id_is_missing(params[:id])
     @message = Memo.message(params[:id])
     erb :show
   end
 
   get "/:id/edit" do
-    halt_404_when_doesnt_exist_id(params[:id])
+    halt_404_when_id_is_missing(params[:id])
     @message = Memo.message(params[:id])
     erb :edit
   end
 
   patch "/:id" do
-    halt_404_when_doesnt_exist_id(params[:id])
+    halt_404_when_id_is_missing(params[:id])
     Memo.update(params[:id], params[:message])
     redirect "/"
   end
 
   delete "/:id" do
-    halt_404_when_doesnt_exist_id(params[:id])
+    halt_404_when_id_is_missing(params[:id])
     Memo.delete(params[:id])
     redirect "/"
   end

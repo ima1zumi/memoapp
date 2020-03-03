@@ -14,11 +14,11 @@ class Memo
       port: yaml["port"]
       )
     yield conn
-    ensure
-      conn.close if conn
+  ensure
+    conn.close if conn
   end
 
-  def self.memos
+  def self.all
     sql = <<~SQL
     SELECT id, message
     FROM Memos
@@ -43,7 +43,6 @@ class Memo
     FROM Memos
     WHERE id = $1;
     SQL
-    # PG::resultは[i]["カラム名"]で返す
     connect { |conn| conn.exec(sql, [id]) }[0]["message"]
   end
 
