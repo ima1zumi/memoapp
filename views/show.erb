@@ -1,18 +1,14 @@
 <div class="box">
   <p>
-    <% File.open("#{@path}", "r") do |f| %>
-    <% f.each_line do |line| %>
-    <%= line.gsub(/\R/, "<br>") %>
-    <% end %>
-    <% end %>
+    <%= replace_newline_with_br(h(@message)) %>
   </p>
 </div>
 <div class="field is-grouped">
   <div class="control">
-    <a href="<%= params[:filename] %>/edit" class="button is-primary">Edit</a>
+    <a href="<%= params[:id] %>/edit" class="button is-primary">Edit</a>
   </div>
   <div class="control">
-    <form action="../<%= params[:filename] %>" method="post">
+    <form action="<%= params[:id] %>" method="post">
       <input type="hidden" name="_method" value="delete">
       <input type="submit" value="Delete" class="button is-danger">
     </form>
